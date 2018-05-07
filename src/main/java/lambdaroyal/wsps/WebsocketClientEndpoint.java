@@ -41,7 +41,6 @@ public class WebsocketClientEndpoint {
 		try {
 			this.handler = handler;
 			WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-			container.setDefaultMaxTextMessageBufferSize(1000 * 128);
 			container.connectToServer(this, endpointURI);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
