@@ -44,6 +44,15 @@ public class PrintServiceRepository extends TimerTask {
 		new Timer(true).schedule(this, 0, context.getPrinterFetchInterval() * 1000);
 	}
 
+	PrintService getPrintService(DocFlavor docFlavor, String printerName) {
+		
+		ConcurrentHashMap<String, PrintService> xs = printServices.get(docFlavor.toString());
+		if(xs != null) {
+			return xs.get(printerName);			
+		}
+		return null;
+	}
+	
 	@Override
 	public void run() {
 		Arrays.asList(DocFlavor.STRING.TEXT_PLAIN, DocFlavor.INPUT_STREAM.PDF).stream().parallel()
@@ -103,7 +112,6 @@ public class PrintServiceRepository extends TimerTask {
 
 					
 				});
-		logger.info("Try to fetch printers...");
 	}
 
 }

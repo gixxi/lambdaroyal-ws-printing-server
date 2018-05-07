@@ -12,10 +12,13 @@ public class WebsocketMessageHandler implements IWebsocketMessageHandler {
 	@Autowired
 	private Authenticator authenticator;
 	
+	@Autowired PrinterSpooler printerSpooler;
+	
 	@Override
 	public void onMessage(String message) {
 		LinkedList<IWebsocketMessageHandler> handlers = new LinkedList<>();
 		handlers.add(authenticator);
+		handlers.add(printerSpooler);
 		handlers.stream().forEach(x -> x.onMessage(message));
 	}
 

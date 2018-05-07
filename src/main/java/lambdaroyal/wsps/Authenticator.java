@@ -5,6 +5,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.websocket.CloseReason;
 import javax.websocket.Session;
@@ -19,8 +21,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lambdaroyal.wsps.WebsocketClientEndpoint.IWebsocketMessageHandler;
 
+/**
+ * checks every 5 minutes whether the JSON webtoken is still valid
+ * @author gix
+ *
+ */
 @Repository
-public class Authenticator implements Runnable, IWebsocketMessageHandler {
+public class Authenticator extends TimerTask implements IWebsocketMessageHandler {
 	private static final Logger logger = LoggerFactory.getLogger(Authenticator.class);
 
 	@Autowired
@@ -32,14 +39,13 @@ public class Authenticator implements Runnable, IWebsocketMessageHandler {
 	private boolean authenticated = false;
 
 	public void start() {
-		new Thread(this).start();
-
+		new Timer(true).schedule(this, 0, 300000);
 	}
 
 	@Override
 	public void run() {
 		// we only authenticate if necessary
-		while (context.getWebtoken() != null) {
+		if (context.getWebtoken() != null) {
 			//reset authentication status - jwt might be outdated
 			authenticated = false;
 			if (context.websocketClientEndpoint != null) {
@@ -56,11 +62,6 @@ public class Authenticator implements Runnable, IWebsocketMessageHandler {
 				} catch (JsonProcessingException e) {
 					logger.error("Failed to generate request", e);
 				}
-			}
-			try {
-				Thread.sleep(5000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
 			}
 		}
 		

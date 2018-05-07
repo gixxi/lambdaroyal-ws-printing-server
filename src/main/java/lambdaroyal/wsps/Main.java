@@ -36,6 +36,9 @@ public class Main {
 	@Autowired
 	private PrintServiceRepository printServiceRepository;
 	
+	@Autowired
+	private PrinterSpooler printerSpooler;
+	
 	
 	/**
 	 * parsing all the programm arguments and starting the state machine (CONNECT -> AUTHORIZE -> WAIT)
@@ -61,7 +64,7 @@ public class Main {
 		context.setServerName(serverName);
     	logger.info(String.format("using server name ", serverName));
 		
-    	long interval = Long.parseLong(cmd.getOptionValue("i", "5"));
+    	long interval = Long.parseLong(cmd.getOptionValue("i", "60"));
     	logger.info(String.format("refreshing list of active printers every %d seconds", interval));
 		context.setPrinterFetchInterval(interval);
     	logger.info(String.format("using websocket URL: %s", cmd.getOptionValue("ws")));
