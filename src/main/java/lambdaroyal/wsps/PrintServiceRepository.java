@@ -36,7 +36,7 @@ public class PrintServiceRepository extends TimerTask {
 	private Context context;
 
 	{
-		printServices.put(DocFlavor.STRING.TEXT_PLAIN.toString(), new ConcurrentHashMap<>());
+		printServices.put(DocFlavor.BYTE_ARRAY.AUTOSENSE.toString(), new ConcurrentHashMap<>());
 		printServices.put(DocFlavor.INPUT_STREAM.PDF.toString(), new ConcurrentHashMap<>());
 	}
 
@@ -55,12 +55,12 @@ public class PrintServiceRepository extends TimerTask {
 	
 	@Override
 	public void run() {
-		Arrays.asList(DocFlavor.STRING.TEXT_PLAIN, DocFlavor.INPUT_STREAM.PDF).stream().parallel()
+		Arrays.asList(DocFlavor.BYTE_ARRAY.AUTOSENSE, DocFlavor.INPUT_STREAM.PDF).stream().parallel()
 				.forEach(docFlavor -> {
 					PrintRequestAttributeSet attributeSet = new HashPrintRequestAttributeSet();
 					attributeSet.add(new Copies(1));
 					Map<String, PrintService> services = Arrays
-							.asList(PrintServiceLookup.lookupPrintServices(docFlavor, attributeSet)).stream()
+							.asList(PrintServiceLookup.lookupPrintServices(docFlavor, null)).stream()
 							.collect(Collectors.toMap(PrintService::getName, Function.identity()));
 
 					ConcurrentHashMap<String, PrintService> bucket = printServices.get(docFlavor.toString());

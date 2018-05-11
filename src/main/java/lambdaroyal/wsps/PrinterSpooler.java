@@ -39,10 +39,10 @@ public class PrinterSpooler implements IWebsocketMessageHandler {
 	private static final Logger logger = LoggerFactory.getLogger(PrinterSpooler.class);
 
 	private enum PRINTING_TYPES {
-		LABELPRINTER_VLIC("Labelprinter Language", DocFlavor.STRING.TEXT_PLAIN), PDF_VLIC("LaTeX/PDF",
-				DocFlavor.INPUT_STREAM.PDF), LABELPRINTER_JAVA(DocFlavor.STRING.TEXT_PLAIN.toString(),
-						DocFlavor.STRING.TEXT_PLAIN), PDF_JAVA(DocFlavor.INPUT_STREAM.PDF.toString(),
-								DocFlavor.INPUT_STREAM.PDF);
+			LABELPRINTER_VLIC("Labelprinter Language", DocFlavor.BYTE_ARRAY.AUTOSENSE), 
+			PDF_VLIC("LaTeX/PDF", DocFlavor.INPUT_STREAM.PDF), 
+			LABELPRINTER_JAVA(DocFlavor.BYTE_ARRAY.AUTOSENSE.toString(), DocFlavor.BYTE_ARRAY.AUTOSENSE), 
+			PDF_JAVA(DocFlavor.INPUT_STREAM.PDF.toString(), DocFlavor.INPUT_STREAM.PDF);
 
 		static PRINTING_TYPES parse(String key) {
 			for (PRINTING_TYPES x : PRINTING_TYPES.values()) {
@@ -144,7 +144,7 @@ public class PrinterSpooler implements IWebsocketMessageHandler {
 				
 				logger.info(new StringBuilder("data").append("\n").append(data).toString());
 				DocPrintJob printJob = printService.createPrintJob();
-				SimpleDoc doc = new SimpleDoc(data, type.flavor, null);
+				SimpleDoc doc = new SimpleDoc(data.getBytes(), type.flavor, null);
 				PrintRequestAttributeSet attributeSet = new HashPrintRequestAttributeSet();
 				attributeSet.add(new Copies(1));
 				try {
