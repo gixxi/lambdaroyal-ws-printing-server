@@ -39,7 +39,7 @@ public class Authenticator extends TimerTask implements IWebsocketMessageHandler
 	private boolean authenticated = false;
 
 	public void start() {
-		new Timer(true).schedule(this, 0, 300000);
+		new Timer(true).schedule(this, 15000, 60000);
 	}
 
 	@Override
@@ -49,7 +49,7 @@ public class Authenticator extends TimerTask implements IWebsocketMessageHandler
 			//reset authentication status - jwt might be outdated
 			authenticated = false;
 			if (context.websocketClientEndpoint != null) {
-				logger.info("Try to authenticate using webtoken");
+				logger.info(String.format("Try to authenticate session [%s] using webtoken", context.getSessionId()));
 				ObjectMapper om = new ObjectMapper();
 				Map<String, String> req = new HashMap<>();
 				req.put("fn", "register-jwt");

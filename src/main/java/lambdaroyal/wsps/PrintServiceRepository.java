@@ -1,5 +1,6 @@
 package lambdaroyal.wsps;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -26,12 +27,17 @@ import org.springframework.stereotype.Repository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lambdaroyal.wsps.WebsocketClientEndpoint.IWebsocketMessageHandler;
+
 @Repository
-public class PrintServiceRepository extends TimerTask {
+public class PrintServiceRepository extends TimerTask implements IWebsocketMessageHandler{
 	private static final Logger logger = LoggerFactory.getLogger(PrintServiceRepository.class);
 
 	private ConcurrentHashMap<String, ConcurrentHashMap<String, PrintService>> printServices = new ConcurrentHashMap<>();
 
+	//this gets started once the session is authenticated
+	private Timer timer = null;
+	
 	@Autowired
 	private Context context;
 
@@ -41,7 +47,6 @@ public class PrintServiceRepository extends TimerTask {
 	}
 
 	public void start() {
-		new Timer(true).schedule(this, 0, context.getPrinterFetchInterval() * 1000);
 	}
 
 	PrintService getPrintService(DocFlavor docFlavor, String printerName) {
@@ -112,6 +117,26 @@ public class PrintServiceRepository extends TimerTask {
 
 					
 				});
+	}
+
+	@Override
+	public void onMessage(String message) {
+		ObjectMapper om = new ObjectMapper();
+		try {
+			HashMap<String, Object> map = om.readValue(message, HashMap.class);
+			if("user".equals(map.get("event")) && "register-jwt-response".equals(map.get("fn")) && context.getSessionId().equals(map.get("sessionId"))) {
+				logger.info("Session authenticated. Register printers.");
+				synchronized (this) {
+					if(timer == null) {
+						timer = new Timer(true);
+						timer.schedule(this, 0, context.getPrinterFetchInterval() * 1000);
+					}					
+				}
+			}
+		} catch (IOException e) {
+		}
+
+		
 	}
 
 }
