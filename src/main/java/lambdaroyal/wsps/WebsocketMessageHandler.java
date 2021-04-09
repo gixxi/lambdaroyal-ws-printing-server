@@ -14,6 +14,8 @@ public class WebsocketMessageHandler implements IWebsocketMessageHandler {
 	
 	@Autowired 
 	private PrinterSpooler printerSpooler;
+	@Autowired
+	private CallRestEndpoint callRestEndpoint;
 	
 	@Autowired
 	private PrintServiceRepository printServiceRepository;
@@ -25,6 +27,7 @@ public class WebsocketMessageHandler implements IWebsocketMessageHandler {
 		LinkedList<IWebsocketMessageHandler> handlers = new LinkedList<>();
 		handlers.add(authenticator);
 		handlers.add(printerSpooler);
+		handlers.add(callRestEndpoint);
 		handlers.add(printServiceRepository);
 		handlers.stream().forEach(x -> x.onMessage(message));
 	}

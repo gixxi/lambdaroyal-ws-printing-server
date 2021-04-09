@@ -51,7 +51,7 @@ public class Main {
     	options.addRequiredOption("ws", "websocketurl", true, "URL of the websocket where we get artifacts to print");
     	options.addOption("i", "interval", true, "time (sec) after all printers are checked again for availability");
     	options.addOption("jwt", "jsonwebtoken", true, "file containing a JSON webtoken that might be used to check authorisation by the server");
-    		
+    	
     	CommandLineParser parser = new DefaultParser();		
     	cmd = parser.parse( options, args);    	
 
