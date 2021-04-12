@@ -44,8 +44,8 @@ public class CallRestEndpoint implements IWebsocketMessageHandler {
 				HttpURLConnection con = (HttpURLConnection) url.openConnection();
 				con.setRequestMethod(method);
 				int code = con.getResponseCode();
-				logger.info(String.format("received rest call request and returned status code: %d",
-						code));
+				logger.info(String.format("received rest call request and returned status code: %d uid: %s",
+						code, uid));
 		
 				Map<String, String> req = new HashMap<>();
 				req.put("fn", "ws-handler");
