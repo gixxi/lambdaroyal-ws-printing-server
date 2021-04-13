@@ -38,12 +38,42 @@ public class CallRestEndpoint implements IWebsocketMessageHandler {
 			if ("call-internal-proxy-endpoint".equals(map.get("fn"))) {
 
 				String urlString =  (String) map.get("url");
+				
 				String method =  (String) map.get("method");
 				String uid = (String) map.get("uid");
-				URL url = new URL(urlString);
-				HttpURLConnection con = (HttpURLConnection) url.openConnection();
-				con.setRequestMethod(method);
-				int code = con.getResponseCode();
+				String queryParamsString = (String) map.get("query-params");
+				String headerStrings = (String) map.get("headers");
+				
+
+				
+				int code = 200;
+				
+				if (method.equals("GET")) {
+					URL url = new URL(urlString);
+					HttpURLConnection con = (HttpURLConnection) url.openConnection();
+					HashMap<String,String> queryParams = convertStringToHashMap(queryParamsString);
+					urlString = assignQueryParametersToUrl(queryParams, urlString);
+					url = new URL(urlString);
+					con = (HttpURLConnection) url.openConnection();
+					con.setRequestMethod(method);
+					
+					HashMap<String,String> headers = convertStringToHashMap(headerStrings);
+					setHeadersToRequest(con, headers);
+						
+					 code = con.getResponseCode();
+				} else {
+					URL url = new URL(urlString);
+					HttpURLConnection con = (HttpURLConnection) url.openConnection();
+					con.setDoOutput(true);
+					assignBodyToRequest(con, queryParamsString);
+
+					HashMap<String,String> headers = convertStringToHashMap(headerStrings);
+					setHeadersToRequest(con, headers);
+						
+					code = con.getResponseCode();
+				}
+				
+
 				logger.info(String.format("received rest call request and returned status code: %d uid: %s",
 						code, uid));
 		
@@ -65,5 +95,55 @@ public class CallRestEndpoint implements IWebsocketMessageHandler {
 		} catch (IOException e) {
 			logger.error("IO Exception occured", e);
 		}
+	}
+	
+	private String assignQueryParametersToUrl(HashMap<String, String> parameters, String url) {
+
+		if (parameters.isEmpty()) {
+			return url;
+		} else {
+			String queryParams = "?";
+			
+			  for (String i : parameters.keySet()) {
+				    queryParams = queryParams + i + "=" + parameters.get(i) + "&";
+				 }
+			  return url + queryParams.substring(0, queryParams.length() - 1); 
+		}
+
+	}
+	
+	private void assignBodyToRequest(HttpURLConnection con, String parameters) {
+		try(OutputStream os = con.getOutputStream()) {
+		    byte[] input = parameters.getBytes("utf-8");
+		    os.write(input, 0, input.length);			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private HashMap<String,String> convertStringToHashMap(String string) {
+		string = string.substring(1, string.length()-1);  
+		   if (string.isEmpty()) {
+		    	return new HashMap<>();
+		    } else {
+		    	
+			    String[] keyValuePairs = string.split(" "); 
+			    HashMap<String,String> map = new HashMap<>();   
+			    
+			    for (int i = 0; i < keyValuePairs.length; i+=2) {
+			        map.put(keyValuePairs[i].substring(1, keyValuePairs[i].length()), keyValuePairs[i+1]);
+			      }
+
+			    return map; 
+		    }	    
+	}
+	
+	private void setHeadersToRequest(HttpURLConnection con, HashMap<String,String> requestParameters) {
+		  for (String key : requestParameters.keySet()) {
+			    con.setRequestProperty(key, requestParameters.get(key));
+			 }
+		
+
 	}
 }
