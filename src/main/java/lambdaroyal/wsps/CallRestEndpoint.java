@@ -4,6 +4,7 @@ import java.io.*;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,7 +38,8 @@ public class CallRestEndpoint implements IWebsocketMessageHandler {
 		try {
 			HashMap<String, Object> map = om.readValue(message, HashMap.class);
 			if ("call-internal-proxy-endpoint".equals(map.get("fn"))) {
-
+				String[] methodsRequiringBody = new String[]{"POST", "PUT", "PATCH"};
+				
 				String urlString = (String) map.get("url");
 
 				String method = (String) map.get("method");
@@ -45,37 +47,30 @@ public class CallRestEndpoint implements IWebsocketMessageHandler {
 				String queryParamsString = (String) map.get("query-params");
 				String headerStrings = (String) map.get("headers");
 				String body = (String) map.get("body");
+				
 
 				StringBuilder response = new StringBuilder();
 				
-				logger.info(String.format("url is %s method is %s queryParams is %s headers is %s body is %s", urlString, method, queryParamsString, headerStrings, body));
 				
 				int code = 200;
 				HttpURLConnection con;
+				
+				HashMap<String, String> queryParams = convertStringToHashMap(queryParamsString);
+				HashMap<String, String> headers = convertStringToHashMap(headerStrings);
+				
 
-				if (method.equals("GET")) {
-					URL url = new URL(urlString);
-					con = (HttpURLConnection) url.openConnection();
-					HashMap<String, String> queryParams = convertStringToHashMap(queryParamsString);
-					urlString = assignQueryParametersToUrl(queryParams, urlString);
-					url = new URL(urlString);
-					con = (HttpURLConnection) url.openConnection();
-					con.setRequestMethod(method);
+				URL url = new URL(urlString);
+				urlString = assignQueryParametersToUrl(queryParams, urlString);
+				
+				con = (HttpURLConnection) url.openConnection();
+				
+				setHeadersToRequest(con, headers);
 
-					HashMap<String, String> headers = convertStringToHashMap(headerStrings);
-					setHeadersToRequest(con, headers);
-
-					code = con.getResponseCode();
-				} else {
-					URL url = new URL(urlString);
-					con = (HttpURLConnection) url.openConnection();
-					con.setRequestMethod(method);
-					con.setDoOutput(true);
-					HashMap<String, String> headers = convertStringToHashMap(headerStrings);
-					setHeadersToRequest(con, headers);
-					
+				
+				con.setRequestMethod(method);
+				if (Arrays.asList(methodsRequiringBody).contains(method)) {
 					assignBodyToRequest(con, body);
-					code = con.getResponseCode();
+	
 					try (BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream(), "utf-8"))) {
 						String responseLine = null;
 						while ((responseLine = br.readLine()) != null) {
@@ -84,10 +79,8 @@ public class CallRestEndpoint implements IWebsocketMessageHandler {
 						logger.info(response.toString());
 					}
 				}
-
-				logger.info(
-						String.format("received rest call request and returned status code: %d uid: %s", code, uid));
-
+				
+				code = con.getResponseCode();
 		
 				String contentType = con.getContentType();
 						
@@ -100,7 +93,6 @@ public class CallRestEndpoint implements IWebsocketMessageHandler {
 				req.put("code", "" + code);
 				req.put("response", response.toString());
 				req.put("response-content-type", contentType);
-				// add mime-type
 				try {
 					context.websocketClientEndpoint.sendMessage(om.writeValueAsString(req));
 				} catch (JsonProcessingException e) {
@@ -133,12 +125,15 @@ public class CallRestEndpoint implements IWebsocketMessageHandler {
 			byte[] input = parameters.getBytes("utf-8");
 			os.write(input, 0, input.length);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	private HashMap<String, String> convertStringToHashMap(String string) {
+		if (string == null) {
+			return new HashMap<>();
+		}
+		
 		string = string.substring(1, string.length() - 1);
 		if (string.isEmpty()) {
 			return new HashMap<>();
