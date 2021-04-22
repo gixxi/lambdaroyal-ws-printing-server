@@ -6,7 +6,7 @@
 
 	<groupId>lambdaroyal</groupId>
 	<artifactId>ws-printing-server</artifactId>
-	<version>0.2.0</version>
+	<version>0.3.0</version>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
