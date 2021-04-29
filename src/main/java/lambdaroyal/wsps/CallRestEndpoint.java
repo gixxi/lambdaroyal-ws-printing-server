@@ -69,6 +69,7 @@ public class CallRestEndpoint implements IWebsocketMessageHandler {
 				
 				con.setRequestMethod(method);
 				if (Arrays.asList(methodsRequiringBody).contains(method)) {
+					con.setDoOutput(true);
 					assignBodyToRequest(con, body);
 	
 					try (BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream(), "utf-8"))) {
