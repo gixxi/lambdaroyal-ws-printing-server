@@ -41,7 +41,6 @@ public class CallRestEndpoint implements IWebsocketMessageHandler {
 				String[] methodsRequiringBody = new String[]{"POST", "PUT", "PATCH"};
 				
 				String urlString = (String) map.get("url");
-
 				String method = (String) map.get("method");
 				String uid = (String) map.get("uid");
 				String queryParamsString = (String) map.get("query-params");
@@ -77,12 +76,13 @@ public class CallRestEndpoint implements IWebsocketMessageHandler {
 						while ((responseLine = br.readLine()) != null) {
 							response.append(responseLine.trim());
 						}
+						logger.info("test");
 						logger.info(response.toString());
 					}
 				}
 				
 				code = con.getResponseCode();
-		
+				logger.info("" + code);
 				String contentType = con.getContentType();
 						
 				Map<String, String> req = new HashMap<>();
@@ -103,6 +103,15 @@ public class CallRestEndpoint implements IWebsocketMessageHandler {
 			}
 		} catch (IOException e) {
 			logger.error("IO Exception occured", e);
+			ObjectMapper omErr = new ObjectMapper();
+			Map<String, String> errReq = new HashMap<>();
+			errReq.put("errors", e.toString());
+			try {
+			   context.websocketClientEndpoint.sendMessage(omErr.writeValueAsString(errReq));
+			} catch (JsonProcessingException jsonErr) {
+				logger.error("Failed to generate request", jsonErr);
+			}
+			
 		}
 	}
 
