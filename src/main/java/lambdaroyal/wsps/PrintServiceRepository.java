@@ -30,7 +30,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lambdaroyal.wsps.WebsocketClientEndpoint.IWebsocketMessageHandler;
 
 @Repository
-public class PrintServiceRepository extends TimerTask implements IWebsocketMessageHandler{
+public class PrintServiceRepository extends TimerTask implements IWebsocketMessageHandler {
 	private static final Logger logger = LoggerFactory.getLogger(PrintServiceRepository.class);
 
 	private ConcurrentHashMap<String, ConcurrentHashMap<String, PrintService>> printServices = new ConcurrentHashMap<>();
