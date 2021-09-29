@@ -20,6 +20,12 @@ public class WebsocketMessageHandler implements IWebsocketMessageHandler {
 	@Autowired
 	private PrintServiceRepository printServiceRepository;
 	
+	@Autowired
+	private TelegramServer telegramServer;
+	
+	@Autowired
+	private PingHandler pingHandler;
+	
 	
 	
 	@Override
@@ -29,6 +35,8 @@ public class WebsocketMessageHandler implements IWebsocketMessageHandler {
 		handlers.add(printerSpooler);
 		handlers.add(callRestEndpoint);
 		handlers.add(printServiceRepository);
+		handlers.add(telegramServer);
+		handlers.add(pingHandler);
 		handlers.stream().forEach(x -> x.onMessage(message));
 	}
 

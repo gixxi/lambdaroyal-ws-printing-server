@@ -76,7 +76,6 @@ public class CallRestEndpoint implements IWebsocketMessageHandler {
 						while ((responseLine = br.readLine()) != null) {
 							response.append(responseLine.trim());
 						}
-						logger.info("test");
 						logger.info(response.toString());
 					}
 				}

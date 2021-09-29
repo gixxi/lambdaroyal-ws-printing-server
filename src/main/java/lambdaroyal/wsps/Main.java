@@ -5,8 +5,11 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -18,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 public class Main {
@@ -39,6 +43,23 @@ public class Main {
 	@Autowired
 	private PrinterSpooler printerSpooler;
 	
+	@Autowired
+	private TelegramServer telegramServer;
+	
+	// Queue taking in messages received from the socket and later on sent
+	// asynchrounously to Rocklog
+	@Bean
+	public Queue<String> queue() {
+		return new LinkedList();
+	}
+	
+	// Queue taking in messages received from Rocklog and later on sent
+	// asynchrounously to the Telegram Server
+	@Bean
+	public Queue<String> telegramServerQueue() {
+		return new LinkedList();
+	}
+	
 	
 	/**
 	 * parsing all the programm arguments and starting the state machine (CONNECT -> AUTHORIZE -> WAIT)
@@ -51,10 +72,12 @@ public class Main {
     	options.addRequiredOption("ws", "websocketurl", true, "URL of the websocket where we get artifacts to print");
     	options.addOption("i", "interval", true, "time (sec) after all printers are checked again for availability");
     	options.addOption("jwt", "jsonwebtoken", true, "file containing a JSON webtoken that might be used to check authorisation by the server");
+    	options.addOption("tsp", "telegramserverport", true, "Port number to receive telegram requests");
+    	
     	
     	CommandLineParser parser = new DefaultParser();		
     	cmd = parser.parse( options, args);    	
-
+    	
         SpringApplication.run(Main.class, args);	
 	}
 	
@@ -81,6 +104,11 @@ public class Main {
 		connector.start();
 		authenticator.start();
 		printServiceRepository.start();
+		
+		String telegramServerPort = cmd.getOptionValue("tsp");
+		if (telegramServerPort != null) {
+			telegramServer.start((Integer.parseInt(telegramServerPort)));
+		}
 	}
 	
     public static void main(String[] args) throws ParseException, IOException {
