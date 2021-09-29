@@ -147,8 +147,6 @@ public class TelegramServer implements IWebsocketMessageHandler {
 						BufferedInputStream in = new BufferedInputStream(clientSocket.getInputStream(), 100);
 						for (i = 0; i < 100; i++) {
 							readValue = in.read();
-							System.out.println("readValue is " + (char) readValue + " byte value is " + readValue);
-
 							if (readValue == -1) {
 								connectionClosed = true;
 							}
@@ -161,7 +159,9 @@ public class TelegramServer implements IWebsocketMessageHandler {
 						}
 
 					} catch (IOException e1) {
-						logger.error("Buffer stream failed", e1);
+						logger.error("Buffer stream failed.", e1);
+						logger.info("Closing Connection, waiting for a new one");
+						break;
 					}
 					// Check that we have a valid message to forward to the queue
 					if (i > 0) {
@@ -170,6 +170,11 @@ public class TelegramServer implements IWebsocketMessageHandler {
 						insertIntoQueue(encodedBytes, queue);
 					}
 				}
+				
+				clientSocket.close();
+			} catch (IOException e) {
+				logger.error("Forcing client connection to closed failed", e);
+				e.printStackTrace();
 			} finally {
 				logger.info("Client Socket closed");
 				clientSocket = null;
@@ -203,7 +208,6 @@ public class TelegramServer implements IWebsocketMessageHandler {
 				result = false;
 			}
 		}
-		System.out.print(result);
 		return result;
 	}
 	
@@ -232,7 +236,6 @@ public class TelegramServer implements IWebsocketMessageHandler {
 				logger.error("Failed to operate on stream from message " + data , e);
 			}
 		}
-		System.out.print(result);
 		return result;
 	}
 
