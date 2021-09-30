@@ -87,7 +87,6 @@ public class TelegramServer implements IWebsocketMessageHandler {
 			}
 		}).start();
 		
-		
 		try {
 			serverSocket = new ServerSocket(telegramPort);
 		} catch (IOException e) {
@@ -97,31 +96,33 @@ public class TelegramServer implements IWebsocketMessageHandler {
 		// Constantly listen for incoming connections, register the latest one we
 		// register to be used to send back response to SPS.
 		while (true) {
-			Socket newSocket;
-			try {
-				newSocket = serverSocket.accept();
-				try {
-					if (telegramClientHandler != null && telegramClientHandler.clientSocket != null) {
-						telegramClientHandler.clientSocket.close();
-					}
-				} catch (IOException e) {
-					logger.error("Closing the old socket failed", e);
-				}
-				telegramClientHandler = new TelegramClientHandler(newSocket, queue);
-				telegramClientHandler.run();
-
-			} catch (IOException e1) {
-				logger.error("Accepting connection failed", e1);
-				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-
+			acceptSocketConnections();
 		}
+	}
+	
+	private synchronized void acceptSocketConnections() {
+		Socket newSocket;
+		try {
+			newSocket = serverSocket.accept();
+			try {
+				if (telegramClientHandler != null && telegramClientHandler.clientSocket != null) {
+					telegramClientHandler.clientSocket.close();
+				}
+			} catch (IOException e) {
+				logger.error("Closing the old socket failed", e);
+			}
+			telegramClientHandler = new TelegramClientHandler(newSocket, queue);
+			telegramClientHandler.run();
 
+		} catch (IOException e1) {
+			logger.error("Accepting connection failed", e1);
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
 	private static class TelegramClientHandler extends Thread {
