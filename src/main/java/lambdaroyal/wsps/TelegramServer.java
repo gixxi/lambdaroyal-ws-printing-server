@@ -219,7 +219,7 @@ public class TelegramServer implements IWebsocketMessageHandler {
 
 	private boolean processQueueContent(String data) {
 		boolean result = false;
-		logger.debug("Data in the queue is " + data);
+		logger.debug("[Telegram Server -> Rocklog]Data in the queue is " + data);
 		if (context.getWebsocketClientEndpoint() != null) {
 			ObjectMapper om = new ObjectMapper();
 			Map<String, Object> req = new HashMap<>();
@@ -245,7 +245,7 @@ public class TelegramServer implements IWebsocketMessageHandler {
 	
 	private boolean processTelegramServerQueueContent(String data) {
 		boolean result = false;
-		logger.debug("Data in the queue is " + data);
+		logger.debug("[Rocklog -> Telegram Server]Data in the queue is " + data);
 		if (telegramClientHandler.clientSocket != null) {
 			ObjectMapper om = new ObjectMapper();
 			HashMap<String, Object> map;

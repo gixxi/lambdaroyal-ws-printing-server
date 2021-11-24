@@ -46,6 +46,9 @@ public class Main {
 	@Autowired
 	private TelegramServer telegramServer;
 	
+	@Autowired
+	private WebsocketPolling websocketPolling;
+	
 	// Queue taking in messages received from the socket and later on sent
 	// asynchrounously to Rocklog
 	@Bean
@@ -69,10 +72,11 @@ public class Main {
 	private static void cli(String[] args) throws ParseException, IOException {
     	Options options = new Options();
     	options.addOption("s", "servername", true, "logical printer server name");
-    	options.addRequiredOption("ws", "websocketurl", true, "URL of the websocket where we get artifacts to print");
     	options.addOption("i", "interval", true, "time (sec) after all printers are checked again for availability");
     	options.addOption("jwt", "jsonwebtoken", true, "file containing a JSON webtoken that might be used to check authorisation by the server");
     	options.addOption("tsp", "telegramserverport", true, "Port number to receive telegram requests");
+    	options.addOption("sn", "server", true, "Rocklog Server name");
+    	options.addOption("pu", "proxy-url", true, "url used to get MongoDB url configs");
     	
     	
     	CommandLineParser parser = new DefaultParser();		
@@ -84,7 +88,11 @@ public class Main {
 	@PostConstruct
 	private void postConstruct() throws IOException {
 		String serverName = cmd.getOptionValue("s", InetAddress.getLocalHost().getHostName());	
+		String rocklogServerName = cmd.getOptionValue("sn");
+		String proxyUrl = cmd.getOptionValue("pu");
 		context.setServerName(serverName);
+		context.setRocklogServerName(rocklogServerName);
+		context.setProxyUrl(proxyUrl);
     	logger.info(String.format("using server name ", serverName));
 		
     	long interval = Long.parseLong(cmd.getOptionValue("i", "60"));
@@ -95,15 +103,16 @@ public class Main {
     	if(jwtFileName != null) {
     		logger.info(String.format("using JSON webtoken from: %s existing: %b", jwtFileName, new File(jwtFileName).exists()));
     	}
-		context.setWebsocketUrl(cmd.getOptionValue("ws"));
+		
     	byte[] encoded = jwtFileName != null ? Files.readAllBytes(Paths.get(jwtFileName)) : null;
     	String jwt = encoded != null ? new String(encoded, "UTF-8") : null;
     	
 		context.setWebtoken(jwt);
-		
+		websocketPolling.start();
 		connector.start();
 		authenticator.start();
 		printServiceRepository.start();
+
 		
 		String telegramServerPort = cmd.getOptionValue("tsp");
 		if (telegramServerPort != null) {

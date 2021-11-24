@@ -36,13 +36,16 @@ public class Connector extends TimerTask {
 
 	@Override
 	public void run() {
-		if (context.websocketClientEndpoint == null) {
+		String currentWebSocketUrl = context.getWebsocketUrl();
+		String newWebSocketUrl = context.getNewWebSocketUrl();
+
+		if (context.websocketClientEndpoint == null || currentWebSocketUrl != newWebSocketUrl) {
 			try {
 				lambdaroyal.wsps.WebsocketClientEndpoint.IWebsocketHandler handler = new lambdaroyal.wsps.WebsocketClientEndpoint.IWebsocketHandler() {
 
 					@Override
 					public void onOpen(Session userSession) {
-						logger.info("Connected to " + context.getWebsocketUrl());
+						logger.info("Connected to " + newWebSocketUrl);
 						connected = true;
 					}
 
@@ -53,19 +56,20 @@ public class Connector extends TimerTask {
 
 					@Override
 					public void onClose(Session userSession, CloseReason reason) {
-						logger.warn("Disconnected from " + context.getWebsocketUrl());
+						logger.warn("Disconnected from " + newWebSocketUrl);
 						context.websocketClientEndpoint = null;
 						connected = false;
 					}
 				};
-
-				context.websocketClientEndpoint = new WebsocketClientEndpoint(new URI(context.getWebsocketUrl()),
+				context.websocketClientEndpoint = new WebsocketClientEndpoint(new URI(newWebSocketUrl),
 						handler);
+				context.setWebsocketUrl(newWebSocketUrl);
+				
 			} catch (URISyntaxException e) {
 				logger.error(String.format("%s has wrong URI syntax"));
 				System.exit(-1);
 			} catch (RuntimeException e) {
-				logger.error("Failed to connect to " + context.getWebsocketUrl(), e);
+				logger.error("Failed to connect to " + newWebSocketUrl, e);
 			}
 		}
 	}

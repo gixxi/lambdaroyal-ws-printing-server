@@ -13,6 +13,34 @@ final class Context {
 	private String serverName;
 	private String webtoken;
 	private long printerFetchInterval;
+	private String rocklogServerName;
+	private String proxyUrl;
+	private String newWebSocketUrl;
+	
+	public String getNewWebSocketUrl() {
+		return newWebSocketUrl;
+	}
+
+	public void setNewWebSocketUrl(String newWebSocketUrl) {
+		this.newWebSocketUrl = newWebSocketUrl;
+	}
+
+	public String getProxyUrl() {
+		return proxyUrl;
+	}
+
+	public void setProxyUrl(String proxyUrl) {
+		this.proxyUrl = proxyUrl;
+	}
+
+	public String getRocklogServerName() {
+		return rocklogServerName;
+	}
+
+	public void setRocklogServerName(String rocklogServerName) {
+		this.rocklogServerName = rocklogServerName;
+	}
+
 	WebsocketClientEndpoint websocketClientEndpoint;
 
 	static {
