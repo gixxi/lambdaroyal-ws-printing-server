@@ -14,6 +14,16 @@ final class Context {
 	private String webtoken;
 	private long printerFetchInterval;
 	private String rocklogServerName;
+	private String rocklogSystemUid;
+	public String getRocklogSystemUid() {
+		return rocklogSystemUid;
+	}
+
+	public void setRocklogSystemUid(String rocklogSystemUid) {
+		this.rocklogSystemUid = rocklogSystemUid;
+	}
+
+
 	private String proxyUrl;
 	private String newWebSocketUrl;
 	

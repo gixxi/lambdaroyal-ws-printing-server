@@ -76,6 +76,7 @@ public class Main {
     	options.addOption("jwt", "jsonwebtoken", true, "file containing a JSON webtoken that might be used to check authorisation by the server");
     	options.addOption("tsp", "telegramserverport", true, "Port number to receive telegram requests");
     	options.addOption("sn", "server", true, "Rocklog Server name");
+    	options.addOption("suid", "system-uid", true, "Rocklog Server uid");
     	options.addOption("pu", "proxy-url", true, "url used to get MongoDB url configs");
     	
     	
@@ -90,9 +91,13 @@ public class Main {
 		String serverName = cmd.getOptionValue("s", InetAddress.getLocalHost().getHostName());	
 		String rocklogServerName = cmd.getOptionValue("sn");
 		String proxyUrl = cmd.getOptionValue("pu");
+		String rocklogSystemUid = cmd.getOptionValue("suid");
+		
 		context.setServerName(serverName);
 		context.setRocklogServerName(rocklogServerName);
 		context.setProxyUrl(proxyUrl);
+		context.setRocklogSystemUid(rocklogSystemUid);
+		
     	logger.info(String.format("using server name ", serverName));
 		
     	long interval = Long.parseLong(cmd.getOptionValue("i", "60"));

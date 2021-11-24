@@ -30,7 +30,7 @@ public class WebsocketPolling {
 					while (true) {
 						HashMap<String, String> mongoDBUrlDetails = MongoDBUrlBuilder.mongoDBConfigRequest(context.getProxyUrl());
 						if(!mongoDBUrlDetails.isEmpty()) {
-							String receivedWs = CallMongoDBEndpoint.websocketUrlCheck(mongoDBUrlDetails, context.getRocklogServerName());
+							String receivedWs = CallMongoDBEndpoint.websocketUrlCheck(mongoDBUrlDetails, context.getRocklogServerName(), context.getRocklogSystemUid());
 							if (ws != receivedWs && receivedWs != "Error") {
 								websocketPolling.ws = receivedWs;
 								context.setNewWebSocketUrl(receivedWs);
