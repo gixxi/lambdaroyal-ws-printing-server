@@ -1,5 +1,6 @@
 package lambdaroyal.wsps;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Timer;
@@ -60,7 +61,15 @@ public class Connector extends TimerTask {
 						connected = false;
 					}
 				};
-
+				try {
+					if (context.websocketClientEndpoint != null && context.websocketClientEndpoint.userSession != null) {
+						context.websocketClientEndpoint.userSession.close();
+					}
+				
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				context.websocketClientEndpoint = new WebsocketClientEndpoint(new URI(newWebSocketUrl),
 						handler);
 				context.setWebsocketUrl(newWebSocketUrl);
