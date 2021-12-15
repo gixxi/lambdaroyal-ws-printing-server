@@ -38,8 +38,7 @@ public class Connector extends TimerTask {
 	public void run() {
 		String currentWebSocketUrl = context.getWebsocketUrl();
 		String newWebSocketUrl = context.getNewWebSocketUrl();
-
-		if (context.websocketClientEndpoint == null || currentWebSocketUrl != newWebSocketUrl) {
+		if (context.websocketClientEndpoint == null || !currentWebSocketUrl.equals(newWebSocketUrl)) {
 			try {
 				lambdaroyal.wsps.WebsocketClientEndpoint.IWebsocketHandler handler = new lambdaroyal.wsps.WebsocketClientEndpoint.IWebsocketHandler() {
 
@@ -61,6 +60,7 @@ public class Connector extends TimerTask {
 						connected = false;
 					}
 				};
+
 				context.websocketClientEndpoint = new WebsocketClientEndpoint(new URI(newWebSocketUrl),
 						handler);
 				context.setWebsocketUrl(newWebSocketUrl);
