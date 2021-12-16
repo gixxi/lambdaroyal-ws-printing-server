@@ -12,7 +12,7 @@ public class WebsocketPolling {
 		private Context context;
 
 		
-		private String ws;
+		private String ws = "";
 	
 		public void start() {
 			
@@ -31,7 +31,7 @@ public class WebsocketPolling {
 						HashMap<String, String> mongoDBUrlDetails = MongoDBUrlBuilder.mongoDBConfigRequest(context.getProxyUrl());
 						if(!mongoDBUrlDetails.isEmpty()) {
 							String receivedWs = CallMongoDBEndpoint.websocketUrlCheck(mongoDBUrlDetails, context.getRocklogServerName(), context.getRocklogSystemUid());
-							if (ws != receivedWs && receivedWs != "Error") {
+							if (!ws.equals(receivedWs) && !receivedWs.equals("Error")) {
 								websocketPolling.ws = receivedWs;
 								context.setNewWebSocketUrl(receivedWs);
 							}
