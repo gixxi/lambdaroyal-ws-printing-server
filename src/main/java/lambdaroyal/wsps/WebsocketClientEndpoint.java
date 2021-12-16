@@ -18,6 +18,8 @@ import javax.websocket.WebSocketContainer;
  */
 @ClientEndpoint
 public class WebsocketClientEndpoint {
+	
+	
 	public interface IWebsocketMessageHandler {
 		public void onMessage(String message);
 
@@ -41,7 +43,7 @@ public class WebsocketClientEndpoint {
 		try {
 			this.handler = handler;
 			WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-			container.connectToServer(this, endpointURI);
+			userSession = container.connectToServer(this, endpointURI);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
