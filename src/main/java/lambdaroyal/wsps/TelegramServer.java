@@ -13,8 +13,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -60,7 +58,7 @@ public class TelegramServer implements IWebsocketMessageHandler {
 							queue.poll();
 						} else {
 							try {
-								logger.info("[Telegram Server to Rocklog queue] Failed to process queue content");
+								logger.debug("[Telegram Server to Rocklog queue] Failed to process queue content");
 								Thread.sleep(5000);
 							} catch (InterruptedException e) {
 								// TODO Auto-generated catch block
@@ -94,8 +92,8 @@ public class TelegramServer implements IWebsocketMessageHandler {
 							telegramServerQueue.poll();
 						} else {
 							try {
-								logger.info("[Rocklog to Telegram Server queue] Failed to process queue content");
-								Thread.sleep(5000);
+								logger.debug("[Rocklog to Telegram Server queue] Failed to process queue content");
+								Thread.sleep(10000);
 							} catch (InterruptedException e) {
 								// TODO Auto-generated catch block
 								logger.error("Error in Server to Rocklog queue");
@@ -219,7 +217,6 @@ public class TelegramServer implements IWebsocketMessageHandler {
 
 	private boolean processQueueContent(String data) {
 		boolean result = false;
-		logger.debug("[Telegram Server -> Rocklog]Data in the queue is " + data);
 		if (context.getWebsocketClientEndpoint() != null) {
 			ObjectMapper om = new ObjectMapper();
 			Map<String, Object> req = new HashMap<>();
@@ -233,6 +230,7 @@ public class TelegramServer implements IWebsocketMessageHandler {
 
 			try {
 				context.websocketClientEndpoint.sendMessage(om.writeValueAsString(req));
+				logger.info("[Telegram Server -> Rocklog] data sent " + data);
 				runningIndex.getAndIncrement();
 				result = true;
 			} catch (JsonProcessingException e) {
@@ -243,10 +241,13 @@ public class TelegramServer implements IWebsocketMessageHandler {
 		return result;
 	}
 	
+	/**
+	 * @param data
+	 * @return
+	 */
 	private boolean processTelegramServerQueueContent(String data) {
 		boolean result = false;
-		logger.debug("[Rocklog -> Telegram Server]Data in the queue is " + data);
-		if (telegramClientHandler.clientSocket != null) {
+		if (telegramClientHandler != null && telegramClientHandler.clientSocket != null) {
 			ObjectMapper om = new ObjectMapper();
 			HashMap<String, Object> map;
 			try {
@@ -257,6 +258,7 @@ public class TelegramServer implements IWebsocketMessageHandler {
 				byte[] bytes = Base64Utils.decodeFromString(telegramData);
 				out.write(bytes);
 				out.flush();
+				logger.info(String.format("[Rocklog -> Telegram Server] data sent %s", data));
 				result = true;
 
 			} catch (JsonParseException e) {
