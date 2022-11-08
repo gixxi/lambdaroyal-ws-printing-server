@@ -1,21 +1,16 @@
 package lambdaroyal.wsps;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
-import org.springframework.util.Base64Utils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lambdaroyal.wsps.WebsocketClientEndpoint.IWebsocketMessageHandler;
@@ -43,7 +38,7 @@ public class PingHandler implements IWebsocketMessageHandler  {
 				req.put("sessionId", Context.getSessionId());
 
 				try {
-					context.websocketClientEndpoint.sendMessage(om.writeValueAsString(req));
+					context.getWebsocketClientEndpoint().sendMessage(om.writeValueAsString(req));
 				} catch (JsonProcessingException e) {
 					logger.error("Failed to generate request", e);
 				}

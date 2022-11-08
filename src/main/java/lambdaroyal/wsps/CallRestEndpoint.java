@@ -94,7 +94,7 @@ public class CallRestEndpoint implements IWebsocketMessageHandler {
 				req.put("response", response.toString());
 				req.put("response-content-type", contentType);
 				try {
-					context.websocketClientEndpoint.sendMessage(om.writeValueAsString(req));
+					context.getWebsocketClientEndpoint().sendMessage(om.writeValueAsString(req));
 				} catch (JsonProcessingException e) {
 					logger.error("Failed to generate request", e);
 				}
@@ -106,7 +106,7 @@ public class CallRestEndpoint implements IWebsocketMessageHandler {
 			Map<String, String> errReq = new HashMap<>();
 			errReq.put("errors", e.toString());
 			try {
-			   context.websocketClientEndpoint.sendMessage(omErr.writeValueAsString(errReq));
+			   context.getWebsocketClientEndpoint().sendMessage(omErr.writeValueAsString(errReq));
 			} catch (JsonProcessingException jsonErr) {
 				logger.error("Failed to generate request", jsonErr);
 			}

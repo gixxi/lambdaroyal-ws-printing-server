@@ -34,10 +34,13 @@ import lambdaroyal.wsps.WebsocketClientEndpoint.IWebsocketMessageHandler;
 public class TelegramServer implements IWebsocketMessageHandler {
 	@Autowired
 	private Context context;
-	@Autowired 
+	@Autowired
 	private Queue<String> queue;
-	@Autowired 
+	@Autowired
 	private Queue<String> telegramServerQueue;
+	
+	// Queue taking in messages received from the socket and later on sent
+	// asynchrounously to Rocklog
 
 	private static final Logger logger = LoggerFactory.getLogger(TelegramServer.class);
 	private ServerSocket serverSocket;
@@ -84,7 +87,7 @@ public class TelegramServer implements IWebsocketMessageHandler {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				while (true) {
+				while (!context.isShutdownRequested()) {
 					String head = telegramServerQueue.peek();
 
 					if (head != null) {
@@ -120,11 +123,26 @@ public class TelegramServer implements IWebsocketMessageHandler {
 			logger.error("Failed to startup TCP/IP for server socket for port ", e);
 		}
 
+		Runtime.getRuntime().addShutdownHook(new Thread()
+        {
+            @Override
+            public void run()
+            {
+            	try {
+					serverSocket.close();
+				} catch (IOException e) {
+					//e.printStackTrace();
+				}
+            }
+        });		
+		
 		// Constantly listen for incoming connections, register the latest one we
 		// register to be used to send back response to SPS.
-		while (true) {
+		while (!context.isShutdownRequested()) {
 			acceptSocketConnections();
 		}
+				
+		logger.info("shutdown TelegramServer");
 	}
 	
 	private synchronized void acceptSocketConnections() {
@@ -229,7 +247,7 @@ public class TelegramServer implements IWebsocketMessageHandler {
 			req.put("running-index", runningIndex.get());
 
 			try {
-				context.websocketClientEndpoint.sendMessage(om.writeValueAsString(req));
+				context.getWebsocketClientEndpoint().sendMessage(om.writeValueAsString(req));
 				logger.info("[Telegram Server -> Rocklog] data sent " + data);
 				runningIndex.getAndIncrement();
 				result = true;

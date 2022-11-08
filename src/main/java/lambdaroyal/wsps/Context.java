@@ -7,51 +7,42 @@ import org.springframework.stereotype.Repository;
 import lambdaroyal.wsps.WebsocketClientEndpoint.IWebsocketHandler;
 
 @Repository
-final class Context {
+public final class Context {
 	private static String sessionId;
+	private String mostRecentPrintingStream;
 	private String websocketUrl;
 	private String serverName;
+	private String systemInfoUrl;
 	private String webtoken;
 	private long printerFetchInterval;
-	private String rocklogServerName;
-	private String rocklogSystemUid;
-	public String getRocklogSystemUid() {
-		return rocklogSystemUid;
-	}
-
-	public void setRocklogSystemUid(String rocklogSystemUid) {
-		this.rocklogSystemUid = rocklogSystemUid;
-	}
-
-
-	private String proxyUrl;
-	private String newWebSocketUrl;
+	private WebsocketClientEndpoint websocketClientEndpoint;
+	private boolean shutdownRequested = false;	
 	
-	public String getNewWebSocketUrl() {
-		return newWebSocketUrl;
+	public Context() {
+    	Runtime.getRuntime().addShutdownHook(new Thread()
+        {
+            @Override
+            public void run()
+            {
+            	System.out.println("Shutdown requested");
+            	Context.this.shutdownRequested = true;
+            }
+        });
+
+	}
+	
+	public boolean isShutdownRequested() {
+		return shutdownRequested;
+	}
+	
+	public String getSystemInfoUrl() {
+		return systemInfoUrl;
 	}
 
-	public void setNewWebSocketUrl(String newWebSocketUrl) {
-		this.newWebSocketUrl = newWebSocketUrl;
+	public void setSystemInfoUrl(String systemInfoUrl) {
+		this.systemInfoUrl = systemInfoUrl;
 	}
 
-	public String getProxyUrl() {
-		return proxyUrl;
-	}
-
-	public void setProxyUrl(String proxyUrl) {
-		this.proxyUrl = proxyUrl;
-	}
-
-	public String getRocklogServerName() {
-		return rocklogServerName;
-	}
-
-	public void setRocklogServerName(String rocklogServerName) {
-		this.rocklogServerName = rocklogServerName;
-	}
-
-	WebsocketClientEndpoint websocketClientEndpoint;
 
 	static {
 		String candidateChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
@@ -101,7 +92,6 @@ final class Context {
 	}
 
 	public IWebsocketHandler getWebsocketMessageHandler() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -113,4 +103,15 @@ final class Context {
 		return serverName;
 	}
 
+	public boolean getWebsocketConnectionEstablished() {
+		return this.websocketClientEndpoint != null && this.websocketClientEndpoint.getUserSession() != null;
+	}
+
+	public String getMostRecentPrintingStream() {
+		return mostRecentPrintingStream;
+	}
+
+	public void setMostRecentPrintingStream(String mostRecentPrintingStream) {
+		this.mostRecentPrintingStream = mostRecentPrintingStream;
+	}
 }

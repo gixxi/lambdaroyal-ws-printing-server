@@ -12,14 +12,27 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * ChatServer Client
  *
  */
 @ClientEndpoint
 public class WebsocketClientEndpoint {
+	private Session userSession = null;
+	private static final Logger logger = LoggerFactory.getLogger(WebsocketClientEndpoint.class);
+	final IWebsocketHandler handler;	
 	
-	
+	public Session getUserSession() {
+		return userSession;
+	}
+
+	public void setUserSession(Session userSession) {
+		this.userSession = userSession;
+	}
+
 	public interface IWebsocketMessageHandler {
 		public void onMessage(String message);
 
@@ -32,8 +45,6 @@ public class WebsocketClientEndpoint {
 
 	}
 
-	Session userSession = null;
-	final IWebsocketHandler handler;
 
 	public WebsocketClientEndpoint(URI endpointURI, IWebsocketHandler handler) {
 		// fail fast
@@ -48,6 +59,18 @@ public class WebsocketClientEndpoint {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	public void close() {
+		try {
+			if (getUserSession() != null) {
+				getUserSession().close();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		
+	}
 
 	/**
 	 * Callback hook for Connection open events.
@@ -57,6 +80,7 @@ public class WebsocketClientEndpoint {
 	 */
 	@OnOpen
 	public void onOpen(Session userSession) {
+		logger.info("onOpen");
 		this.userSession = userSession;
 		handler.onOpen(userSession);
 	}
@@ -71,6 +95,7 @@ public class WebsocketClientEndpoint {
 	 */
 	@OnClose
 	public void onClose(Session userSession, CloseReason reason) {
+		logger.info("onClose");
 		this.userSession = null;
 		handler.onClose(userSession, reason);
 	}
