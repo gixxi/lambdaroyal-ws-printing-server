@@ -1,11 +1,13 @@
 package lambdaroyal.wsps;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
@@ -56,6 +58,20 @@ public class PrintServiceRepository extends TimerTask implements IWebsocketMessa
 			return xs.get(printerName);			
 		}
 		return null;
+	}
+	
+	public List<String> getAllPrinters() {
+		return Arrays.asList(DocFlavor.BYTE_ARRAY.AUTOSENSE, DocFlavor.INPUT_STREAM.PDF).stream()
+		.map(x -> {
+			return Arrays.asList(PrintServiceLookup.lookupPrintServices(x, null)).stream()
+					.map(PrintService::getName).collect(Collectors.toList());
+		})
+		.filter(x->x != null)
+		.reduce(new ArrayList<String>(), (acc, z) -> {acc.addAll(z);
+			return acc;}).stream()
+		.distinct()
+		.sorted()
+		.toList();
 	}
 	
 	@Override
@@ -109,7 +125,7 @@ public class PrintServiceRepository extends TimerTask implements IWebsocketMessa
 						req.put("printers", printers);
 						
 						try {
-							context.websocketClientEndpoint.sendMessage(om.writeValueAsString(req));
+							context.getWebsocketClientEndpoint().sendMessage(om.writeValueAsString(req));
 						} catch (JsonProcessingException e) {
 							logger.error("Failed to generate request", e);
 						}

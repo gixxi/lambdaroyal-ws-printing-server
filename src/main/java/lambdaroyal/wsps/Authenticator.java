@@ -1,15 +1,10 @@
 package lambdaroyal.wsps;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import javax.websocket.CloseReason;
-import javax.websocket.Session;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,9 +28,6 @@ public class Authenticator extends TimerTask implements IWebsocketMessageHandler
 	@Autowired
 	private Context context;
 
-	@Autowired
-	Connector connector;
-
 	private boolean authenticated = false;
 
 	public void start() {
@@ -48,7 +40,7 @@ public class Authenticator extends TimerTask implements IWebsocketMessageHandler
 		if (context.getWebtoken() != null) {
 			//reset authentication status - jwt might be outdated
 			authenticated = false;
-			if (context.websocketClientEndpoint != null) {
+			if (context.getWebsocketClientEndpoint() != null) {
 				logger.info(String.format("Try to authenticate session [%s] using webtoken", context.getSessionId()));
 				ObjectMapper om = new ObjectMapper();
 				Map<String, String> req = new HashMap<>();
@@ -57,7 +49,7 @@ public class Authenticator extends TimerTask implements IWebsocketMessageHandler
 				req.put("sessionId", Context.getSessionId());
 				req.put("jwt", context.getWebtoken());
 				try {
-					context.websocketClientEndpoint
+					context.getWebsocketClientEndpoint()
 							.sendMessage(om.writeValueAsString(req));
 				} catch (JsonProcessingException e) {
 					logger.error("Failed to generate request", e);

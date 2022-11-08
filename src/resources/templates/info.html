@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head> 
+    <title>Getting Started: Serving Web Content</title> 
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link href="main.css" rel="stylesheet" />
+</head>
+<body>
+	<h1>Planet-Rocklog Printing Server</h1>
+	<p th:if="${version}" th:text="Version ${version}"/>
+	<h2>Configuration and connection status</h2>
+	<table>
+		<tr><td>Printing server name</td><td th:text="${context.serverName}"/></tr>
+		<tr><td>Configuration webservice URL</td><td th:text="${context.systemInfoUrl}"/></tr>
+		<tr><td>Websocket URL</td><td th:text="${context.websocketUrl}"/></tr>
+		<tr><td>Websocket connected</td><td th:if="${context.websocketConnectionEstablished}">
+		<svg style="color: green; max-height: 1rem" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+</svg>
+		</td>
+		<td th:unless="${context.websocketConnectionEstablished}"><svg style="color: red; max-height: 1rem" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+</svg>
+		</td> 
+		</tr>
+	</table>
+	<h2>All printers</h2>
+	<ul>
+      <li th:each="printer: ${printers}" th:text="${printer}">Printer</li>
+    </ul>
+    <h2>Most recent printing data</h2>
+    <textarea style="width: 100%" id="printingdata" name="Most recent printing data" rows="30" th:text="${context.mostRecentPrintingStream}">
+</textarea>
+</body>
+</html>

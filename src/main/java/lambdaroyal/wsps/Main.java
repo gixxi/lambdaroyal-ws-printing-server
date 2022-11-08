@@ -23,6 +23,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import lambdaroyal.wsps.config.Connector;
+import lambdaroyal.wsps.config.WebsocketUrlPolling;
+
+
+
 @SpringBootApplication
 public class Main {
 	private static final Logger logger = LoggerFactory.getLogger(Main.class);	
@@ -41,28 +46,10 @@ public class Main {
 	private PrintServiceRepository printServiceRepository;
 	
 	@Autowired
-	private PrinterSpooler printerSpooler;
-	
-	@Autowired
 	private TelegramServer telegramServer;
 	
 	@Autowired
-	private WebsocketPolling websocketPolling;
-	
-	// Queue taking in messages received from the socket and later on sent
-	// asynchrounously to Rocklog
-	@Bean
-	public Queue<String> queue() {
-		return new LinkedList();
-	}
-	
-	// Queue taking in messages received from Rocklog and later on sent
-	// asynchrounously to the Telegram Server
-	@Bean
-	public Queue<String> telegramServerQueue() {
-		return new LinkedList();
-	}
-	
+	private WebsocketUrlPolling websocketPolling;	
 	
 	/**
 	 * parsing all the programm arguments and starting the state machine (CONNECT -> AUTHORIZE -> WAIT)
@@ -75,10 +62,7 @@ public class Main {
     	options.addOption("i", "interval", true, "time (sec) after all printers are checked again for availability");
     	options.addOption("jwt", "jsonwebtoken", true, "file containing a JSON webtoken that might be used to check authorisation by the server");
     	options.addOption("tsp", "telegramserverport", true, "Port number to receive telegram requests");
-    	options.addOption("sn", "server", true, "Rocklog Server name");
-    	options.addOption("suid", "system-uid", true, "Rocklog Server uid");
-    	options.addOption("pu", "proxy-url", true, "url used to get MongoDB url configs");
-    	
+    	options.addOption("url", "systeminfourl", true, "url to fetch the /system/info from a Planet-Rocklog server that contains the websocket endpoint");    	
     	
     	CommandLineParser parser = new DefaultParser();		
     	cmd = parser.parse( options, args);    	
@@ -89,15 +73,10 @@ public class Main {
 	@PostConstruct
 	private void postConstruct() throws IOException {
 		String serverName = cmd.getOptionValue("s", InetAddress.getLocalHost().getHostName());	
-		String rocklogServerName = cmd.getOptionValue("sn");
-		String proxyUrl = cmd.getOptionValue("pu");
-		String rocklogSystemUid = cmd.getOptionValue("suid");
+		String systemInfoUrl = cmd.getOptionValue("url");
 		
 		context.setServerName(serverName);
-		context.setRocklogServerName(rocklogServerName);
-		context.setProxyUrl(proxyUrl);
-		context.setRocklogSystemUid(rocklogSystemUid);
-		
+		context.setSystemInfoUrl(systemInfoUrl);
     	logger.info(String.format("using server name ", serverName));
 		
     	long interval = Long.parseLong(cmd.getOptionValue("i", "60"));
@@ -127,5 +106,6 @@ public class Main {
 	
     public static void main(String[] args) throws ParseException, IOException {
     	cli(args);
+    	
     }
 }

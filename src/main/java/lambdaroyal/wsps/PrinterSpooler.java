@@ -1,8 +1,6 @@
 package lambdaroyal.wsps;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,8 +12,6 @@ import javax.print.SimpleDoc;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
 import javax.print.attribute.standard.Copies;
-import javax.websocket.CloseReason;
-import javax.websocket.Session;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +33,7 @@ import lambdaroyal.wsps.WebsocketClientEndpoint.IWebsocketMessageHandler;
 @Repository
 public class PrinterSpooler implements IWebsocketMessageHandler {
 	private static final Logger logger = LoggerFactory.getLogger(PrinterSpooler.class);
-
+	
 	private enum PRINTING_TYPES {
 			LABELPRINTER_VLIC("Labelprinter Language", DocFlavor.BYTE_ARRAY.AUTOSENSE), 
 			PDF_VLIC("LaTeX/PDF", DocFlavor.INPUT_STREAM.PDF), 
@@ -69,9 +65,6 @@ public class PrinterSpooler implements IWebsocketMessageHandler {
 	@Autowired
 	private Context context;
 
-	@Autowired
-	Connector connector;
-
 	private void sendError(String job, String msg) {
 		ObjectMapper om = new ObjectMapper();
 		Map<String, String> req = new HashMap<>();
@@ -82,7 +75,7 @@ public class PrinterSpooler implements IWebsocketMessageHandler {
 		req.put("job", job);
 		req.put("msg", msg);
 		try {
-			context.websocketClientEndpoint
+			context.getWebsocketClientEndpoint()
 					.sendMessage(om.writeValueAsString(req));
 		} catch (JsonProcessingException e) {
 			logger.error("Failed to generate request", e);
@@ -98,7 +91,7 @@ public class PrinterSpooler implements IWebsocketMessageHandler {
 		req.put("jwt", context.getWebtoken());
 		req.put("job", job);
 		try {
-			context.websocketClientEndpoint
+			context.getWebsocketClientEndpoint()
 					.sendMessage(om.writeValueAsString(req));
 		} catch (JsonProcessingException e) {
 			logger.error("Failed to generate request", e);
@@ -119,6 +112,8 @@ public class PrinterSpooler implements IWebsocketMessageHandler {
 				logger.info(String.format("received print request printer: %s doc-flavor: %s number of characters: %d",
 						map.get("printer").toString(), map.get("printing-type"), data.length()));
 
+				context.setMostRecentPrintingStream(data);
+				
 				// try map printing type
 				String reqPrintingType = map.get("printing-type").toString();
 				PRINTING_TYPES type = PRINTING_TYPES.parse(reqPrintingType);
