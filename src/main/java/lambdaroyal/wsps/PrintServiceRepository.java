@@ -66,12 +66,16 @@ public class PrintServiceRepository extends TimerTask implements IWebsocketMessa
 			return Arrays.asList(PrintServiceLookup.lookupPrintServices(x, null)).stream()
 					.map(PrintService::getName).collect(Collectors.toList());
 		})
-		.filter(x->x != null)
-		.reduce(new ArrayList<String>(), (acc, z) -> {acc.addAll(z);
-			return acc;}).stream()
+		.filter(x-> {
+			return x != null;
+		})
+		.reduce(new ArrayList<String>(), (acc, z) -> {
+				acc.addAll(z);
+				return acc;}
+		).stream()
 		.distinct()
 		.sorted()
-		.toList();
+		.collect(Collectors.toList());
 	}
 	
 	@Override

@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import lambdaroyal.wsps.Context;
 import lambdaroyal.wsps.PrintServiceRepository;
-import lambdaroyal.wsps.VersionHolder;
 
 @Controller
 public class InfoController {
@@ -18,14 +17,11 @@ public class InfoController {
 	@Autowired
 	Context context;
 	
-	@Autowired
-	VersionHolder versionHolder;
-	
 	@GetMapping("/info")
 	public String info(@RequestParam(name="name", required=false, defaultValue="World") String name, Model model) {
 		model.addAttribute("printers", printServiceRepository.getAllPrinters());
 		model.addAttribute("context", context);
-		model.addAttribute("version", versionHolder.getVersion());
+		model.addAttribute("version", null);
 		return "info";
 	}
 

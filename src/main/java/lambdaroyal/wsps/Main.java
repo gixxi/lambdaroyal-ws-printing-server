@@ -21,10 +21,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 import lambdaroyal.wsps.config.Connector;
 import lambdaroyal.wsps.config.WebsocketUrlPolling;
+import lambdaroyal.wsps.controller.InfoController;
 
 
 
@@ -49,7 +51,10 @@ public class Main {
 	private TelegramServer telegramServer;
 	
 	@Autowired
-	private WebsocketUrlPolling websocketPolling;	
+	private WebsocketUrlPolling websocketPolling;
+	
+	@Autowired
+	private InfoController infoController;
 	
 	/**
 	 * parsing all the programm arguments and starting the state machine (CONNECT -> AUTHORIZE -> WAIT)

@@ -136,13 +136,21 @@ public class TelegramServer implements IWebsocketMessageHandler {
             }
         });		
 		
-		// Constantly listen for incoming connections, register the latest one we
-		// register to be used to send back response to SPS.
-		while (!context.isShutdownRequested()) {
-			acceptSocketConnections();
-		}
-				
-		logger.info("shutdown TelegramServer");
+		// start a thread that accepts incoming requests
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// Constantly listen for incoming connections, register the latest one we
+				// register to be used to send back response to SPS.
+				while (!context.isShutdownRequested()) {
+					acceptSocketConnections();
+				}
+						
+				logger.info("shutdown TelegramServer");		
+			}
+		});
+		
 	}
 	
 	private synchronized void acceptSocketConnections() {
