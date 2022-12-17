@@ -99,8 +99,8 @@ public class PrintServiceRepository extends TimerTask implements IWebsocketMessa
 					// add all others
 					services.entrySet().stream().forEach(x -> {
 						if (!bucket.containsKey(x.getKey())) {
-							logger.info(String.format("Adding new printer service flavor: %s name: %s ",
-									docFlavor.toString(), x.getKey()));
+							logger.info(String.format("Adding new printer service flavor: %s name: %s encoding: %s mime-type: %s ",
+									docFlavor.toString(), x.getKey(), docFlavor.hostEncoding, docFlavor.getMimeType()));
 
 						}
 						bucket.put(x.getKey(), x.getValue());

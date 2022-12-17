@@ -1,6 +1,11 @@
 package lambdaroyal.wsps;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -136,10 +141,18 @@ public class PrinterSpooler implements IWebsocketMessageHandler {
 				}
 
 				// try to print
+								
+				// Convert a string (to ISO-LATIN-1) bytes in a ByteBuffer
+				// The new ByteBuffer is ready to be read.
+				ByteBuffer bbuf = context.getPrinterByteArrayEncoder().encode(CharBuffer.wrap(data));
+				
+				DocPrintJob printJob = printService.createPrintJob();
+				byte[] data_ = bbuf.array();
+				SimpleDoc doc = new SimpleDoc(data_, type.flavor, null);
 				
 				logger.info(new StringBuilder("data").append("\n").append(data).toString());
-				DocPrintJob printJob = printService.createPrintJob();
-				SimpleDoc doc = new SimpleDoc(data.getBytes(), type.flavor, null);
+				
+				
 				PrintRequestAttributeSet attributeSet = new HashPrintRequestAttributeSet();
 				attributeSet.add(new Copies(1));
 				try {

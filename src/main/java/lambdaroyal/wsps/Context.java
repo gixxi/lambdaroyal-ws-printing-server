@@ -1,5 +1,6 @@
 package lambdaroyal.wsps;
 
+import java.nio.charset.CharsetEncoder;
 import java.util.Random;
 
 import org.springframework.stereotype.Repository;
@@ -14,6 +15,10 @@ public final class Context {
 	private String serverName;
 	private String systemInfoUrl;
 	private String webtoken;
+	/**
+	 * this encoder is constructed at ramp-up time and consumes the configuration parameter pe (printerEncoding)
+	 */
+	private CharsetEncoder printerByteArrayEncoder;
 	private long printerFetchInterval;
 	private WebsocketClientEndpoint websocketClientEndpoint;
 	private boolean shutdownRequested = false;	
@@ -114,4 +119,14 @@ public final class Context {
 	public void setMostRecentPrintingStream(String mostRecentPrintingStream) {
 		this.mostRecentPrintingStream = mostRecentPrintingStream;
 	}
+
+	public CharsetEncoder getPrinterByteArrayEncoder() {
+		return printerByteArrayEncoder;
+	}
+
+	public void setPrinterByteArrayEncoder(CharsetEncoder printerByteArrayEncoder) {
+		this.printerByteArrayEncoder = printerByteArrayEncoder;
+	}
+
+	
 }
