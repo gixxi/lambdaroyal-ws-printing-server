@@ -149,7 +149,7 @@ public class TelegramServer implements IWebsocketMessageHandler {
 						
 				logger.info("shutdown TelegramServer");		
 			}
-		});
+		}).start();
 		
 	}
 	
