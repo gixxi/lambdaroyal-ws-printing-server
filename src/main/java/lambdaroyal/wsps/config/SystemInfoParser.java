@@ -29,7 +29,6 @@ public class SystemInfoParser {
 		request.addRequestProperty("User-Agent", "Mozilla");
 		request.setReadTimeout(5000);
 		request.setConnectTimeout(5000);
-
 		request.connect();
 
 		JsonParser jp = new JsonParser();

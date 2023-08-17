@@ -19,6 +19,8 @@ import lambdaroyal.wsps.WebsocketClientEndpoint;
  */
 @Repository	
 public class WebsocketUrlPolling {	
+	private static Long PollingInterval = 120000L;
+	private static Long ErrorInterval = 20000L;
 		@Autowired
 		private Context context;
 		@Autowired
@@ -40,11 +42,16 @@ public class WebsocketUrlPolling {
 									context.getWebsocketClientEndpoint().close();
 								}
 							}
+							try {
+								Thread.sleep(PollingInterval);
+							} catch (InterruptedException e1) {
+								logger.error("Failed to sleep", e1);
+							}
 						} catch (IOException e) {
 							logger.error(String.format("Failed to get a websocket URL from Planet-Rocklog's /system/info webservice %s", context.getSystemInfoUrl()));
-							e.printStackTrace();
+							e.printStackTrace(System.out);
 							try {
-								Thread.sleep(10000);
+								Thread.sleep(ErrorInterval);
 							} catch (InterruptedException e1) {
 								logger.error("Failed to sleep", e1);
 							}
